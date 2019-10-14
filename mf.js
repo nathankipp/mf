@@ -1,30 +1,84 @@
 const fs = require('fs');
+const readline = require("readline");
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+rl.on("close", function() {
+  process.exit(0);
+});
 const { MF_TEMPLATE, FILE_PATH } = require('./config');
 const { replacements } = require('./replacements');
 
-// make dir
-if (FILE_PATH !== '.') {
-  fs.mkdir(FILE_PATH, { recursive: true }, err => {
-    if (err) {
-      throw new Error('cannot not write in that path');
-    }
+function makeDir() {
+  if (FILE_PATH === '.') {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    fs.mkdir(FILE_PATH, { recursive: true }, err => {
+      if (err) {
+        reject('mf cannot not write to that path');
+      }
+      resolve();
+    });
   });
 }
 
-// make files from templates
-fs.readdir(MF_TEMPLATE, (err, files) => {
-  files.forEach(file => {
-    try {
-      fs.readFile(`${MF_TEMPLATE}/${file}`, 'utf8', (err, data) => {
-        if (err) throw new Error(err);
-        if (!err) {
-          const fData = replacements(data);
-          fs.writeFile(`${FILE_PATH}/${replacements(file)}`, fData, 'utf8', () => {
-            if (err) throw new Error(err);
-            console.log(`created: ${FILE_PATH}/${replacements(file)}`);
-          });
-        }
-      });
-    } catch (err) { console.log(err); }
+function readTemplateFile(file) {
+  return new Promise(resolve => {
+    fs.readFile(file, 'utf8', (err, data) => {
+      if (err) {
+        console.log(`Warning: the template file ${file} cannot be read`);
+        resolve();
+      };
+      resolve(data);
+    });
   });
-});
+}
+
+function shouldWrite(newFile) {
+  return new Promise(resolve => {
+    fs.access(newFile, err => {
+      if (!err) {
+        rl.question(`Warning: ${newFile} exists. Overwrite (y/n)? `, a => {
+          if (a === 'n') {
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
+function writeFile(newFile, data) {
+  return new Promise(resolve => {
+    fs.writeFile(newFile, replacements(data), 'utf8', err => {
+      if (err) {
+        resolve(`Warning: could not write ${newFile}`);
+      }
+      resolve(`Created: ${newFile}`);
+    });
+  });
+}
+
+(async function mf() {
+  await makeDir();
+  const files = fs.readdirSync(MF_TEMPLATE);
+  for (let i = 0; i < files.length; i += 1) {
+    const file = files[i];
+    const data = await readTemplateFile(`${MF_TEMPLATE}/${file}`);
+    if (data) {
+      const newFile = `${FILE_PATH}/${replacements(file)}`;
+      const okToWrite = await shouldWrite(newFile);
+      if (okToWrite) {
+        const write = await writeFile(newFile, replacements(data));
+        console.log(write);
+      }
+    }
+  }
+  rl.close();
+})();
