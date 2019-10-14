@@ -19,5 +19,6 @@ Let's assume our ALIAS is `mf`...
 
 ### Adding Templates (Really, this is the bread-and-butter...)
 1. Add a directory and set of files into the `./templates` directory
-2. Run the `mf` against your new directory name
-3. Bask in the glory of your laziness
+2. (if necessary) Add replacments to the `./tempaltes/replacements.js` file
+3. Run the `mf` against your new directory name
+4. Bask in the glory of your laziness
