@@ -1,5 +1,7 @@
 # mf
-*file templates for the lazy coder*
+*file templates for the lazy coder*  
+*- or -*  
+*a quick start for [The Pragmatic Programmer](https://www.amazon.com/Pragmatic-Programmer-Journeyman-Master/dp/020161622X) (write code that writes code)*
 
 ### Installation:
 1. Download this repo into, you know, wherever you want
