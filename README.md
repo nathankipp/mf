@@ -9,9 +9,9 @@
 
 Let's assume our ALIAS is `mf`...
 
-### Use: `$ mf [new_file] [template_file]`  
+### Use: `$ mf [new_file] [template_folder]`  
 - `new_file` should be a complete path  
-- `template_file` refers to a folder in the ./templates directory  
+- `template_folder` refers to a folder in the ./templates directory  
 
 #### For example, running `$ mf ./components/New/New.js rc` creates three (3) files:
 1. `./components/New/index.js` (an export of ./New.js for easy pathing)
